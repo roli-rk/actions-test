@@ -1,0 +1,26 @@
+name: 'Angular Build and Test'
+description: 'Builds the Angular project and runs tests'
+inputs:
+  node-version:
+    description: 'Version of Node.js to use'
+    required: false
+    default: '16'
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build Angular project
+      run: npm run build -- --prod
+
+    - name: Run tests
+      run: npm run test -- --watch=false --browsers=ChromeHeadless
