@@ -4,7 +4,10 @@ inputs:
   node-version:
     description: 'Version of Node.js to use'
     required: false
-    default: '16'
+    default: '22.11.0'
+  npm-token:
+    description: 'NPM authentication token'
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -16,11 +19,18 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
+    - name: Configure npm authentication
+      run: echo "//registry.npmjs.org/:_authToken=${{ inputs.npm-token }}" > ~/.npmrc
+      shell: bash
+
     - name: Install dependencies
       run: npm install
+      shell: bash
 
     - name: Build Angular project
-      run: npm run build -- --prod
+      run: npm run build
+      shell: bash
 
     - name: Run tests
-      run: npm run test -- --watch=false --browsers=ChromeHeadless
+      run: npm run test
+      shell: bash

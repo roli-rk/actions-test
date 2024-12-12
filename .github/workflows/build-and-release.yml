@@ -1,0 +1,72 @@
+name: Build and Release Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Release type (minor, major, hotfix)'
+        required: true
+        default: 'minor'
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Schritt 1: Repository auschecken
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Schritt 2: Node.js einrichten
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.11.0'
+
+      # Schritt 3: Abhängigkeiten installieren
+      - name: Install dependencies
+        run: npm install
+
+      # Schritt 4: Projekt bauen
+      - name: Build project
+        run: npm run build -- --configuration=production
+
+      # Schritt 5: Version erhöhen
+      - name: Bump version
+        id: versioning
+        run: |
+          VERSION_TYPE=${{ github.event.inputs.version_type }}
+          echo "Current version: $(cat package.json | jq -r .version)"
+          NEW_VERSION=$(npx semver $(cat package.json | jq -r .version) --increment $VERSION_TYPE)
+          echo "New version: $NEW_VERSION"
+          jq ".version=\"$NEW_VERSION\"" package.json > temp.json && mv temp.json package.json
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # Schritt 6: Commit und Push der neuen Version
+      - name: Commit and push version bump
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git add package.json
+          git commit -m "Bump version to $NEW_VERSION"
+          git push
+
+      # Schritt 7: Release erstellen
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        with:
+          tag_name: "v${{ env.NEW_VERSION }}"
+          release_name: "Release v${{ env.NEW_VERSION }}"
+          body: |
+            ### Changes
+            - New release based on ${{ github.event.inputs.version_type }} changes.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
