@@ -1,0 +1,56 @@
+name: Release Workflow
+run-name: Release ${{ github.event.inputs.version_type }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Release type'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - hotfix
+          - minor
+          - major
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  calculate-version:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.set-version.outputs.new_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Determine version
+        id: set-version
+        run: |
+          LAST_VERSION=$(git tag --sort=-creatordate | head -n 1)
+          if [ -z "$LAST_VERSION" ]; then
+            LAST_VERSION="v1.0.0"
+          fi
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_VERSION#v}"
+          case "$VERSION_TYPE" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            hotfix) PATCH=$((PATCH + 1)) ;;
+          esac
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+          echo "::set-output name=new_version::$NEW_VERSION"
+
+  build-and-release:
+    needs: calculate-version
+    runs-on: ubuntu-latest
+    name: Release ${{ needs.calculate-version.outputs.new_version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3

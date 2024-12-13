@@ -52,7 +52,7 @@ src/environments/*.prod.ts
 .npm/
 
 # Package lock
-package-lock.json
+# package-lock.json
 yarn.lock
 
 # Miscellaneous
