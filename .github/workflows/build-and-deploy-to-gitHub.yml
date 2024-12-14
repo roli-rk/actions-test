@@ -1,34 +1,82 @@
-name: Build and Deploy Angular App
+name: Build and Release Workflow
+run-name: Release triggered for ${{ github.event.inputs.version_type }}
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Release type'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - hotfix
+          - minor
+          - major
+
+permissions:
+  contents: write
+  actions: write
 
 jobs:
-  build-and-deploy:
+  build-and-release:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout your repository
-      - name: Checkout
+      # Schritt 1: Repository auschecken
+      - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      # Setup Node.js
+      # Schritt 2: Node.js einrichten
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: '22.11.0'
 
-      # Install dependencies
+      # Schritt 3: Aktuelle Version ermitteln und neue Version berechnen
+      - name: Determine version
+        id: versioning
+        run: |
+          LAST_VERSION=$(git tag --sort=-creatordate | head -n 1)
+          if [ -z "$LAST_VERSION" ]; then
+            LAST_VERSION="v1.0.0"
+          fi
+          VERSION_TYPE="${{ github.event.inputs.version_type }}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "${LAST_VERSION#v}"
+
+          case "$VERSION_TYPE" in
+            major) MAJOR=$((MAJOR + 1)); MINOR=0; PATCH=0 ;;
+            minor) MINOR=$((MINOR + 1)); PATCH=0 ;;
+            hotfix) PATCH=$((PATCH + 1)) ;;
+            *) exit 1 ;;
+          esac
+
+          NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      # Schritt 4: package.json-Version aktualisieren
+      - name: Update package.json version
+        run: |
+          NEW_VERSION=${{ env.NEW_VERSION }}
+          npm version $NEW_VERSION --no-git-tag-version
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "actions@github.com"
+          git add package.json
+          git commit -m "Bump version to $NEW_VERSION"
+          git push origin HEAD
+
+      # Schritt 5: Abhängigkeiten installieren
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      # Build the Angular application
-      - name: Build Angular App
-        run: npm run build -- --output-path=dist --configuration production
+      # Schritt 6: Projekt bauen
+      - name: Build project
+        run: npm run build -- --configuration=production
 
-      # Deploy to GitHub Pages
+      # Schritt 7: Dist-Ordner auf GitHub Pages deployen
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
