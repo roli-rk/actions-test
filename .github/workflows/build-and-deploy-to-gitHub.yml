@@ -74,7 +74,7 @@ jobs:
       - name: Upload Build Artifacts
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist/my-standalone-app/  # Pfad zum generierten Build-Ordner
+          path: dist/my-standalone-app/browser  # Pfad zum generierten Build-Ordner
 
   deploy:
     runs-on: ubuntu-latest
