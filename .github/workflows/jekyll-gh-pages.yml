@@ -1,4 +1,4 @@
-name: Build and Deploy Angular App to GitHub Pages
+name: jekyll gh pages
 
 on:
   # Workflow wird bei Pushes auf den main-Branch ausgelöst
@@ -36,6 +36,6 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           branch: gh-pages
-          folder: dist/my-standalone-app
+          folder: dist/my-standalone-app/browser
           # Ersetze <app-name> mit dem Namen deines Projekts in `dist/`
           clean: true

@@ -26,7 +26,7 @@ jobs:
         # Anstelle von 'npm install' kann man 'npm ci' für einen reproduzierbaren Build verwenden.
 
       - name: Build Angular App
-        run: npx ng build --configuration production --base-href /actions-test/
+        run: npm run build -- --base-href /actions-test/
         # oder: npx ng build --configuration production
         # Wichtig: Stelle sicher, dass in der Angular CLI-Konfiguration outputPath = dist/<projekt-name> ist.
 
