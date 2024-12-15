@@ -1,41 +1,41 @@
-name: jekyll gh pages
+# name: jekyll gh pages
 
-on:
-  # Workflow wird bei Pushes auf den main-Branch ausgelöst
-  push:
-    branches: ["main"]
+# on:
+#   # Workflow wird bei Pushes auf den main-Branch ausgelöst
+#   push:
+#     branches: ["main"]
 
-  # Ermöglicht manuelles Auslösen aus der Actions-UI
-  workflow_dispatch:
+#   # Ermöglicht manuelles Auslösen aus der Actions-UI
+#   workflow_dispatch:
 
-permissions:
-  contents: write
-  pages: write
-  id-token: write
+# permissions:
+#   contents: write
+#   pages: write
+#   id-token: write
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
 
-      - name: Install Dependencies
-        run: npm ci
+#       - name: Install Dependencies
+#         run: npm ci
 
-      - name: Build Angular App
-        run: npm run build -- --base-href /actions-test/
-        # Ersetze <repo-name> durch den tatsächlichen Repository-Namen
+#       - name: Build Angular App
+#         run: npm run build -- --base-href /actions-test/
+#         # Ersetze <repo-name> durch den tatsächlichen Repository-Namen
 
-      - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
-        with:
-          branch: gh-pages
-          folder: dist/my-standalone-app/browser
-          # Ersetze <app-name> mit dem Namen deines Projekts in `dist/`
-          clean: true
+#       - name: Deploy to GitHub Pages
+#         uses: JamesIves/github-pages-deploy-action@v4.4.1
+#         with:
+#           branch: gh-pages
+#           folder: dist/my-standalone-app/browser
+#           # Ersetze <app-name> mit dem Namen deines Projekts in `dist/`
+#           clean: true
