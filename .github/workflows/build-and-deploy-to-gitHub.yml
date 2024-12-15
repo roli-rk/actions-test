@@ -26,7 +26,7 @@ jobs:
         # Anstelle von 'npm install' kann man 'npm ci' für einen reproduzierbaren Build verwenden.
 
       - name: Build Angular App
-        run: npm run build
+        run: npx ng build --configuration production --base-href /actions-test/
         # oder: npx ng build --configuration production
         # Wichtig: Stelle sicher, dass in der Angular CLI-Konfiguration outputPath = dist/<projekt-name> ist.
 
@@ -34,5 +34,5 @@ jobs:
         uses: JamesIves/github-pages-deploy-action@v4.4.1
         with:
           branch: gh-pages            # Zielbranch für GitHub Pages
-          folder: dist/my-standalone-app # Pfad zum generierten Build-Ordner
+          folder: dist/my-standalone-app/browser # Pfad zum generierten Build-Ordner
           clean: true                 # Löscht alle vorherigen Inhalte in gh-pages
