@@ -68,7 +68,7 @@ jobs:
         run: npm ci
 
       - name: Build Angular App
-        run: npm run build -- --base-href /actions-test/
+        run: npm run build
         # Stellen Sie sicher, dass der outputPath in der angular.json korrekt eingestellt ist
 
       - name: Upload Build Artifacts
