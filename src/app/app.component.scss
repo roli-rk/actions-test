@@ -94,3 +94,33 @@
     }
   }
   
+
+.element {
+  position: relative;
+  background-color: red;
+  z-index: 0; /* wichtig */
+}
+
+
+.element::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50%;
+  background-color: red;
+  z-index: -1; /* liegt über dem Text */
+  pointer-events: none; /* optional: Mausinteraktionen durchlassen */
+}
+
+.element-list {
+  padding: 100px;
+  background-color: white;
+  border:solid black;
+}
+.sub-element-list {
+  height: fit-content;
+  background-color: #c7c5c5;
+  border: solid #ccc;
+}

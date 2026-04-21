@@ -177,7 +177,47 @@
   }
 </style>
 
-<main class="main">
+<div>
+  <div class="element" style="position: sticky; top: 0;" #stickyElement>
+    <h1 class="task-manager-title">Task Manager</h1>
+    <div class="task-input-container">
+      <input #taskInput class="task-input" type="text" placeholder="Enter a task" />
+      <button class="task-add-button" (click)="addTask(taskInput.value); taskInput.value = ''">Add Task</button>
+    </div>
+    <ul class="task-list">
+      <li *ngFor="let task of tasks$ | async" class="task-item">
+        <span class="task-name">{{ task.name }}</span>
+        <button class="task-remove-button" (click)="removeTask(task.id)">Remove</button>
+      </li>
+    </ul>
+  </div>
+
+  <ul>
+    @for (i of range(10); track i; let idx = $index) {
+      <li class="element-list">
+        <p [style.top.px]="stickyElement.getBoundingClientRect().bottom" style="position: sticky; top: 0; background-color: #f0f0f0; z-index: 2;" #first>{{ i }}
+          <span>Index: {{ idx }}</span>
+        </p>
+        <ul>
+          @for (i of range(10); track i; let idx = $index) {
+            <li class="sub-element-list">
+              <p style="position: sticky; z-index: 1; background-color: #e0e0e0; top: 0;" [style.top.px]="first.offsetHeight + first.getBoundingClientRect().bottom"> 
+                {{i }}
+                <span>Index: {{ idx }}</span>
+              </p>
+              <div style="display: flex; gap: 0.5rem; flex-direction: column;">
+                <button (click)="onRemove(idx)">Remove</button>
+                <button (click)="onRemove(idx)">Remove</button>
+                <button (click)="onRemove(idx)">Remove</button>
+              </div>
+            </li>
+          }
+        </ul>
+      </li>
+    }
+  </ul>
+</div>
+<!-- <main class="main">
   <div class="content">
     <div class="left-side">
       <svg
@@ -322,7 +362,7 @@
       </div>
     </div>
   </div>
-</main>
+</main> -->
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
@@ -333,4 +373,4 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 
-<router-outlet />
+<!-- <router-outlet /> -->
